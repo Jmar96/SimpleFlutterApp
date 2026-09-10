@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                   return Container(
                     width: 100,
                     decoration: BoxDecoration(
-                      color: categories[index].boxColor.withValues(alpha: 0.3),
+                      color: categories[index].boxColor.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(16)
                     ),
                     child: Column(
