@@ -1,11 +1,12 @@
 import 'package:fitness/models/category_model.dart';
 import 'package:fitness/models/diet_model.dart';
 import 'package:fitness/models/popular_model.dart';
+import 'package:fitness/pages/sample_get_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class HomePage extends StatefulWidget {
-  const new({super.key});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -376,7 +377,10 @@ class _HomePageState extends State<HomePage> {
       actions: [
         GestureDetector(
           onTap: () {
-            
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SampleGetData()),
+            );
           },
           child: Container(
             margin: EdgeInsets.all(10),
