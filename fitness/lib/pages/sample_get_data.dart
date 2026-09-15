@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,7 +11,8 @@ class SampleGetData extends StatefulWidget {
 }
 
 class _SampleGetDataState extends State<SampleGetData> {
-  List<dynamic> items = [];
+  // myData in Django looks like {"1": {...}, "2": {...}} -- a Map, not a List
+  List<MapEntry<String, dynamic>> items = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -31,8 +33,9 @@ class _SampleGetDataState extends State<SampleGetData> {
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
         setState(() {
-          items = jsonDecode(response.body);
+          items = decoded.entries.toList();
           isLoading = false;
         });
       } else {
@@ -77,42 +80,54 @@ class _SampleGetDataState extends State<SampleGetData> {
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : errorMessage.isNotEmpty
-                ? ListView(
-                    // wrapped in ListView so pull-to-refresh still works on error
-                    children: [
-                      const SizedBox(height: 100),
-                      Center(child: Text(errorMessage)),
-                    ],
-                  )
-                : items.isEmpty
-                    ? const Center(child: Text('No data found'))
-                    : ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: items.length,
-                        separatorBuilder: (context, index) => const Divider(),
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          if (item is Map) {
+            ? ListView(
+                // wrapped in ListView so pull-to-refresh still works on error
+                children: [
+                  const SizedBox(height: 100),
+                  Center(child: Text(errorMessage)),
+                ],
+              )
+            : items.isEmpty
+            ? const Center(child: Text('No data found'))
+            : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: items.length,
+                separatorBuilder: (context, index) => const Divider(),
+                itemBuilder: (context, index) {
+                  final entry = items[index];
+                  final id = entry.key;
+                  final value = entry.value;
+
+                  if (value is Map) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ID: $id',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          ...value.entries.map<Widget>((field) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: item.entries.map<Widget>((entry) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 2),
-                                    child: Text(
-                                      '${entry.key}: ${entry.value}',
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  );
-                                }).toList(),
+                              padding: const EdgeInsets.only(left: 8, top: 2),
+                              child: Text(
+                                '${field.key}: ${field.value}',
+                                style: const TextStyle(fontSize: 14),
                               ),
                             );
-                          }
-                          // fallback if the API just returns a list of plain values
-                          return ListTile(title: Text(item.toString()));
-                        },
+                          }),
+                        ],
                       ),
+                    );
+                  }
+                  // fallback if a value isn't a nested object
+                  return ListTile(title: Text('$id: $value'));
+                },
+              ),
       ),
     );
   }
