@@ -2,6 +2,7 @@ import 'package:fitness/models/category_model.dart';
 import 'package:fitness/models/diet_model.dart';
 import 'package:fitness/models/popular_model.dart';
 import 'package:fitness/pages/sample_get_data.dart';
+import 'package:fitness/pages/sample_crud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -326,9 +327,17 @@ class _HomePageState extends State<HomePage> {
                         endIndent: 10,
                         thickness: 0.5,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SvgPicture.asset('assets/icons/Filter.svg'),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SampleCrud()),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SvgPicture.asset('assets/icons/Filter.svg'),
+                        ),
                       ),
                     ],
                   ),
